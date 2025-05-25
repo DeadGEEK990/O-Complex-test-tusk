@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Погода в {{ city }}</title>
+</head>
+<body>
+    <h1>Погода в {{ city }}</h1>
+    <p>Часовой пояс: {{ timezone }}</p>
+
+    <button type="button" onclick="history.back()" style="margin-bottom: 20px;">Назад</button>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Время</th>
+                {% for param in parameters %}
+                    <th>{{ param.label }}{% if param.unit %} ({{ param.unit }}){% endif %}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in hourly_data %}
+                <tr>
+                    <td>{{ row.0|slice:"0:10" }}</td>   {# дата, первые 10 символов #}
+                    <td>{{ row.0|slice:"11:16" }}</td>  {# время #}
+                    {% for val in row|slice:"1:" %}
+                        <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
+

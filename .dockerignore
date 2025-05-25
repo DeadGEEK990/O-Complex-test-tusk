@@ -1,0 +1,25 @@
+# Виртуальные окружения
+venv/
+.env
+*.env
+
+# Файлы IDE и системы
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.Python
+
+# База данных (например SQLite)
+db.sqlite3
+*.sqlite3
+
+# Логи и временные файлы
+*.log
+*.tmp
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+Dockerfile

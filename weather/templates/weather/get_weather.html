@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Получить погоду</title>
+    <style>
+        #suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            background: white;
+            width: 200px;
+        }
+        #suggestions div {
+            padding: 5px;
+            cursor: pointer;
+        }
+        #suggestions div:hover {
+            background-color: #eee;
+        }
+        .autocomplete-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Введите город</h1>
+    <form method="post" autocomplete="off">
+        {% csrf_token %}
+        <div class="autocomplete-wrapper">
+            {{ form.city.label_tag }}<br />
+            {{ form.city }}<br />
+            <div id="suggestions"></div>
+        </div>
+        <br /><br />
+        <button type="submit">Получить прогноз</button>
+    </form>
+
+    <script>
+    const input = document.querySelector('input[name="city"]');
+    const suggestions = document.getElementById('suggestions');
+
+    input.addEventListener('input', async () => {
+        const query = input.value.trim();
+        if (query.length < 2) {
+            suggestions.innerHTML = '';
+            return;
+        }
+
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!data.results || data.results.length === 0) {
+                suggestions.innerHTML = '<div>Ничего не найдено</div>';
+                return;
+            }
+
+            suggestions.innerHTML = data.results.map(city => {
+                const displayName = `${city.name}, ${city.country_code.toUpperCase()}`;
+                return `<div class="suggestion-item" data-name="${city.name}">${displayName}</div>`;
+            }).join('');
+
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    input.value = item.getAttribute('data-name');
+                    suggestions.innerHTML = '';
+                });
+            });
+        } catch (err) {
+            console.error(err);
+            suggestions.innerHTML = '<div>Ошибка при получении данных</div>';
+        }
+    });
+
+    // Закрыть подсказки при клике вне поля
+    document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.innerHTML = '';
+        }
+    });
+    </script>
+</body>
+</html>
